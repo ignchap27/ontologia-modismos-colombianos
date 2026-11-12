@@ -28,25 +28,39 @@ Así queda todo junto.
 flowchart LR
     Locucion -- subclase de --> Modismo
     ModismoUnipalabra -- subclase de --> Modismo
-    Modismo -- tieneAcepcion --> Acepcion
+    Modismo -- subclase de --> le["ontolex:LexicalEntry"]
+    Modismo -- "tieneAcepcion (ontolex:sense)" --> Acepcion
     Acepcion -- esAcepcionDe --> Modismo
-    Acepcion -- fuente --> Diccionario
+    Acepcion -- subclase de --> ls["ontolex:LexicalSense"]
+    Acepcion -- "fuente (dct:source)" --> Diccionario
     Acepcion -- tieneEjemplo --> EjemploDeUso
     Acepcion -. skos:definition .-> def(["texto"])
     EjemploDeUso -. textoEjemplo .-> ej(["texto"])
     Modismo -- usadoEn --> Lugar
-    Lugar -- ubicadoEn --> Lugar
+    Lugar -- "ubicadoEn (schema:containedInPlace)" --> Lugar
+    Lugar -- subclase de --> sp["schema:Place"]
     RegionNatural -- subclase de --> Lugar
     MacroRegion -- subclase de --> Lugar
     Departamento -- subclase de --> Lugar
+    Departamento -- subclase de --> sa["schema:AdministrativeArea"]
     Ciudad -- subclase de --> Lugar
-    Departamento -- owl:sameAs --> wd(["Wikidata"])
+    Ciudad -- subclase de --> sc["schema:City"]
+    Departamento -- owl:sameAs --> wd(["entidad de Wikidata<br/>con su población"])
     Ciudad -- owl:sameAs --> wd
+
+    classDef propio fill:#dbeafe,stroke:#1d4ed8,color:#000
+    classDef externo fill:#fef3c7,stroke:#b45309,color:#000
+    classDef wikidata fill:#dcfce7,stroke:#15803d,color:#000
+    class Modismo,Locucion,ModismoUnipalabra,Acepcion,Diccionario,EjemploDeUso,Lugar,RegionNatural,MacroRegion,Departamento,Ciudad propio
+    class le,ls,sp,sa,sc externo
+    class wd wikidata
 ```
 
-1. Las flechas con nombre de propiedad unen una clase con otra.
-2. Las flechas que dicen subclase de son la jerarquía de clases.
-3. Las flechas punteadas llegan a un texto.
+1. Azul son las clases nuestras, con prefijo `mc`.
+2. Amarillo son las clases de OntoLex y schema.org que extendemos.
+3. Verde es lo que sale de Wikidata. La población de la CQ3 se trae de ahí.
+4. Las flechas con nombre de propiedad unen una clase con otra. Entre paréntesis va la propiedad externa que extiende.
+5. Las flechas punteadas llegan a un texto. `skos:definition` es de SKOS y `textoEjemplo` es nuestra.
 
 Este es un modismo de verdad, `guámbito`, tal como queda en `datos/instancias.ttl`.
 
@@ -67,6 +81,11 @@ flowchart LR
     huila -- ubicadoEn --> andina["r:lugar/región-andina<br/>a mc:RegionNatural"]
     huila -- owl:sameAs --> wd(["wd:Q234920"])
     m == "usadoEn (inferido por OWL)" ==> andina
+
+    classDef propio fill:#dbeafe,stroke:#1d4ed8,color:#000
+    classDef wikidata fill:#dcfce7,stroke:#15803d,color:#000
+    class m,a1,a2,dicol,bdc,e,huila,andina propio
+    class wd wikidata
 ```
 
 La flecha gruesa no está en los datos. La pone owlrl con la cadena `usadoEn` y `ubicadoEn`. En los datos `guámbito` también se usa en Tolima, pero no se dibujó para que no se llene.
