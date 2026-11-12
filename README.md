@@ -22,6 +22,55 @@ Hay dos partes que se conectan por el modismo.
 
 **Geografía.** `mc:Lugar` se divide en `mc:RegionNatural`, `mc:MacroRegion`, `mc:Departamento` y `mc:Ciudad`. Los lugares se unen con `mc:ubicadoEn`. Por ejemplo Atlántico queda en la Costa Atlántica, que queda en la Región Caribe. Un modismo se une a un lugar con `mc:usadoEn`.
 
+Así queda todo junto.
+
+```mermaid
+flowchart LR
+    Locucion -- subclase de --> Modismo
+    ModismoUnipalabra -- subclase de --> Modismo
+    Modismo -- tieneAcepcion --> Acepcion
+    Acepcion -- esAcepcionDe --> Modismo
+    Acepcion -- fuente --> Diccionario
+    Acepcion -- tieneEjemplo --> EjemploDeUso
+    Acepcion -. skos:definition .-> def(["texto"])
+    EjemploDeUso -. textoEjemplo .-> ej(["texto"])
+    Modismo -- usadoEn --> Lugar
+    Lugar -- ubicadoEn --> Lugar
+    RegionNatural -- subclase de --> Lugar
+    MacroRegion -- subclase de --> Lugar
+    Departamento -- subclase de --> Lugar
+    Ciudad -- subclase de --> Lugar
+    Departamento -- owl:sameAs --> wd(["Wikidata"])
+    Ciudad -- owl:sameAs --> wd
+```
+
+1. Las flechas con nombre de propiedad unen una clase con otra.
+2. Las flechas que dicen subclase de son la jerarquía de clases.
+3. Las flechas punteadas llegan a un texto.
+
+Este es un modismo de verdad, `guámbito`, tal como queda en `datos/instancias.ttl`.
+
+```mermaid
+flowchart LR
+    m["r:modismo/guámbito<br/>a mc:ModismoUnipalabra"]
+    a1["acepcion/1"]
+    a2["acepcion/2"]
+    m -- tieneAcepcion --> a1
+    m -- tieneAcepcion --> a2
+    a1 -- fuente --> dicol["r:diccionario/dicol"]
+    a2 -- fuente --> bdc["r:diccionario/bdc"]
+    a1 -. skos:definition .-> d1(["Niño de corta edad."])
+    a2 -. skos:definition .-> d2(["niño"])
+    a1 -- tieneEjemplo --> e["acepcion/1/ejemplo"]
+    e -. textoEjemplo .-> t(["¡Mijita, traiga el guámbito para bañarlo!"])
+    m -- usadoEn --> huila["r:lugar/huila<br/>a mc:Departamento"]
+    huila -- ubicadoEn --> andina["r:lugar/región-andina<br/>a mc:RegionNatural"]
+    huila -- owl:sameAs --> wd(["wd:Q234920"])
+    m == "usadoEn (inferido por OWL)" ==> andina
+```
+
+La flecha gruesa no está en los datos. La pone owlrl con la cadena `usadoEn` y `ubicadoEn`. En los datos `guámbito` también se usa en Tolima, pero no se dibujó para que no se llene.
+
 ### Vocabularios que reusamos
 
 No inventamos lo que ya existe. Nuestras clases y propiedades extienden otras sin redefinirlas.
