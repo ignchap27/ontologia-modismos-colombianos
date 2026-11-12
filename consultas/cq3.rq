@@ -1,0 +1,14 @@
+PREFIX mc: <http://example.org/modcol/ontologia#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+# CQ3 (agregación) modismos por departamento y su entidad en Wikidata
+# la población se pide después a Wikidata desde scripts/06_consultas.py
+SELECT ?departamento ?wikidata (COUNT(DISTINCT ?m) AS ?modismos) WHERE {
+  ?l a mc:Departamento ;
+     rdfs:label ?departamento ;
+     owl:sameAs ?wikidata .
+  FILTER (STRSTARTS(STR(?wikidata), "http://www.wikidata.org/"))
+  OPTIONAL { ?m mc:usadoEn ?l }
+}
+GROUP BY ?departamento ?wikidata
+ORDER BY DESC(?modismos)

@@ -1,0 +1,5 @@
+rdflib~=7.6
+owlrl~=7.6
+pyshacl~=0.40
+Unidecode~=1.4
+requests~=2.34

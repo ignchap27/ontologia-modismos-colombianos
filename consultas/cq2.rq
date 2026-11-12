@@ -1,0 +1,20 @@
+PREFIX mc: <http://example.org/modcol/ontologia#>
+PREFIX lugar: <http://example.org/modcol/recurso/lugar/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+# CQ2 (recuperación) acepciones de los modismos de la Costa Atlántica con más de un significado y su diccionario
+SELECT ?modismo ?definicion ?diccionario WHERE {
+  {
+    SELECT ?m WHERE {
+      ?m mc:usadoEn lugar:costa-atlántica ;
+         mc:tieneAcepcion ?a .
+    }
+    GROUP BY ?m
+    HAVING (COUNT(?a) >= 2)
+  }
+  ?m rdfs:label ?modismo ;
+     mc:tieneAcepcion ?a .
+  ?a skos:definition ?definicion ;
+     mc:fuente/rdfs:label ?diccionario .
+}
+ORDER BY ?modismo ?definicion

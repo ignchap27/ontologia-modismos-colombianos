@@ -1,0 +1,69 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+
+<http://example.org/modcol/recurso/lugar/amazonas> owl:sameAs wd:Q44724 .
+
+<http://example.org/modcol/recurso/lugar/antioquia> owl:sameAs wd:Q123304 .
+
+<http://example.org/modcol/recurso/lugar/arauca> owl:sameAs wd:Q230223 .
+
+<http://example.org/modcol/recurso/lugar/atlántico> owl:sameAs wd:Q230882 .
+
+<http://example.org/modcol/recurso/lugar/bogotá> owl:sameAs wd:Q2841 .
+
+<http://example.org/modcol/recurso/lugar/bolívar> owl:sameAs wd:Q230597 .
+
+<http://example.org/modcol/recurso/lugar/boyacá> owl:sameAs wd:Q121233 .
+
+<http://example.org/modcol/recurso/lugar/caldas> owl:sameAs wd:Q230607 .
+
+<http://example.org/modcol/recurso/lugar/caquetá> owl:sameAs wd:Q13985 .
+
+<http://example.org/modcol/recurso/lugar/casanare> owl:sameAs wd:Q13984 .
+
+<http://example.org/modcol/recurso/lugar/cauca> owl:sameAs wd:Q230602 .
+
+<http://example.org/modcol/recurso/lugar/cesar> owl:sameAs wd:Q234916 .
+
+<http://example.org/modcol/recurso/lugar/chocó> owl:sameAs wd:Q230584 .
+
+<http://example.org/modcol/recurso/lugar/cundinamarca> owl:sameAs wd:Q232564 .
+
+<http://example.org/modcol/recurso/lugar/córdoba> owl:sameAs wd:Q234912 .
+
+<http://example.org/modcol/recurso/lugar/guainía> owl:sameAs wd:Q238645 .
+
+<http://example.org/modcol/recurso/lugar/guaviare> owl:sameAs wd:Q272885 .
+
+<http://example.org/modcol/recurso/lugar/huila> owl:sameAs wd:Q234920 .
+
+<http://example.org/modcol/recurso/lugar/la-guajira> owl:sameAs wd:Q272747 .
+
+<http://example.org/modcol/recurso/lugar/magdalena> owl:sameAs wd:Q199910 .
+
+<http://example.org/modcol/recurso/lugar/meta> owl:sameAs wd:Q238629 .
+
+<http://example.org/modcol/recurso/lugar/nariño> owl:sameAs wd:Q230217 .
+
+<http://example.org/modcol/recurso/lugar/norte-de-santander> owl:sameAs wd:Q233058 .
+
+<http://example.org/modcol/recurso/lugar/putumayo> owl:sameAs wd:Q232953 .
+
+<http://example.org/modcol/recurso/lugar/quindío> owl:sameAs wd:Q13995 .
+
+<http://example.org/modcol/recurso/lugar/risaralda> owl:sameAs wd:Q13993 .
+
+<http://example.org/modcol/recurso/lugar/san-andrés-y-providencia> owl:sameAs wd:Q26855 .
+
+<http://example.org/modcol/recurso/lugar/santander> owl:sameAs wd:Q235166 .
+
+<http://example.org/modcol/recurso/lugar/sucre> owl:sameAs wd:Q235188 .
+
+<http://example.org/modcol/recurso/lugar/tolima> owl:sameAs wd:Q234501 .
+
+<http://example.org/modcol/recurso/lugar/valle-del-cauca> owl:sameAs wd:Q13990 .
+
+<http://example.org/modcol/recurso/lugar/vaupés> owl:sameAs wd:Q234505 .
+
+<http://example.org/modcol/recurso/lugar/vichada> owl:sameAs wd:Q268729 .
+

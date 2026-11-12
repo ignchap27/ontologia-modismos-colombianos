@@ -1,0 +1,60 @@
+@prefix fuseki: <http://jena.apache.org/fuseki#> .
+@prefix ja:     <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+#################################################################
+# Servicio 1, datos tal cual, sin inferencia
+#################################################################
+
+<#serviceBase> a fuseki:Service ;
+    fuseki:name "modcol-base" ;
+    fuseki:endpoint [ fuseki:operation fuseki:query ; fuseki:name "sparql" ] ;
+    fuseki:dataset <#datasetBase> .
+
+<#datasetBase> a ja:RDFDataset ;
+    ja:defaultGraph <#modelBase> .
+
+<#modelBase> a ja:MemoryModel ;
+    ja:content [ ja:externalContent <file:///staging/ontologia/modcol.ttl> ] ;
+    ja:content [ ja:externalContent <file:///staging/datos/instancias.ttl> ] ;
+    ja:content [ ja:externalContent <file:///staging/datos/enlaces_wikidata.ttl> ] .
+
+#################################################################
+# Servicio 2, razonador RDFS de Jena
+#################################################################
+
+<#serviceRDFS> a fuseki:Service ;
+    fuseki:name "modcol-rdfs" ;
+    fuseki:endpoint [ fuseki:operation fuseki:query ; fuseki:name "sparql" ] ;
+    fuseki:dataset <#datasetRDFS> .
+
+<#datasetRDFS> a ja:RDFDataset ;
+    ja:defaultGraph <#modelRDFS> .
+
+<#modelRDFS> a ja:InfModel ;
+    ja:reasoner [ ja:reasonerURL <http://jena.hpl.hp.com/2003/RDFSExptRuleReasoner> ] ;
+    ja:baseModel <#modelRDFSBase> .
+
+<#modelRDFSBase> a ja:MemoryModel ;
+    ja:content [ ja:externalContent <file:///staging/ontologia/modcol.ttl> ] ;
+    ja:content [ ja:externalContent <file:///staging/datos/instancias.ttl> ] ;
+    ja:content [ ja:externalContent <file:///staging/datos/enlaces_wikidata.ttl> ] .
+
+#################################################################
+# Servicio 3, OWL. Jena no maneja propertyChainAxiom, entonces
+# se carga lo que infirió owlrl en scripts/04_razonar.py
+#################################################################
+
+<#serviceOWL> a fuseki:Service ;
+    fuseki:name "modcol-owl" ;
+    fuseki:endpoint [ fuseki:operation fuseki:query ; fuseki:name "sparql" ] ;
+    fuseki:dataset <#datasetOWL> .
+
+<#datasetOWL> a ja:RDFDataset ;
+    ja:defaultGraph <#modelOWL> .
+
+<#modelOWL> a ja:MemoryModel ;
+    ja:content [ ja:externalContent <file:///staging/ontologia/modcol.ttl> ] ;
+    ja:content [ ja:externalContent <file:///staging/datos/instancias.ttl> ] ;
+    ja:content [ ja:externalContent <file:///staging/datos/inferido.ttl> ] ;
+    ja:content [ ja:externalContent <file:///staging/datos/enlaces_wikidata.ttl> ] .

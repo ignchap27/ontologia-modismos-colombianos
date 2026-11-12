@@ -1,0 +1,76 @@
+{
+  "@context": {
+    "mc": "http://example.org/modcol/ontologia#",
+    "r": "http://example.org/modcol/recurso/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#"
+  },
+  "@graph": [
+    {
+      "@id": "http://example.org/modcol/recurso/modismo/a-juro/acepcion/2",
+      "@type": "mc:Acepcion",
+      "mc:fuente": {
+        "@id": "http://example.org/modcol/recurso/diccionario/bdc"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "a la fuerza, contra la voluntad de uno"
+      }
+    },
+    {
+      "@id": "http://example.org/modcol/recurso/modismo/a-juro",
+      "@type": "mc:Locucion",
+      "mc:tieneAcepcion": [
+        {
+          "@id": "http://example.org/modcol/recurso/modismo/a-juro/acepcion/1"
+        },
+        {
+          "@id": "http://example.org/modcol/recurso/modismo/a-juro/acepcion/2"
+        }
+      ],
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "a juro"
+      }
+    },
+    {
+      "@id": "http://example.org/modcol/recurso/modismo/a-juro/acepcion/1",
+      "@type": "mc:Acepcion",
+      "mc:fuente": {
+        "@id": "http://example.org/modcol/recurso/diccionario/bdc"
+      },
+      "mc:tieneEjemplo": {
+        "@id": "http://example.org/modcol/recurso/modismo/a-juro/acepcion/1/ejemplo"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "con terquedad o insistencia"
+      }
+    },
+    {
+      "@id": "http://example.org/modcol/recurso/modismo/raimundo/acepcion/1",
+      "@type": "mc:Acepcion",
+      "mc:fuente": {
+        "@id": "http://example.org/modcol/recurso/diccionario/dicol"
+      },
+      "mc:tieneEjemplo": {
+        "@id": "http://example.org/modcol/recurso/modismo/raimundo/acepcion/1/ejemplo"
+      },
+      "skos:definition": {
+        "@language": "es",
+        "@value": "Todos, mucha gente."
+      }
+    },
+    {
+      "@id": "http://example.org/modcol/recurso/modismo/raimundo",
+      "@type": "mc:ModismoUnipalabra",
+      "mc:tieneAcepcion": {
+        "@id": "http://example.org/modcol/recurso/modismo/raimundo/acepcion/1"
+      },
+      "rdfs:label": {
+        "@language": "es",
+        "@value": "Raimundo"
+      }
+    }
+  ]
+}

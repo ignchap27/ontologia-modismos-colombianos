@@ -1,0 +1,13 @@
+PREFIX mc: <http://example.org/modcol/ontologia#>
+PREFIX lugar: <http://example.org/modcol/recurso/lugar/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+# CQ1 (navegación) modismos usados en la Región Andina y el lugar de donde vienen
+# necesita la cadena usadoEn o ubicadoEn y que ubicadoEn sea transitiva
+SELECT DISTINCT ?modismo ?lugar WHERE {
+  ?m mc:usadoEn lugar:región-andina ;
+     rdfs:label ?modismo ;
+     mc:usadoEn ?l .
+  ?l mc:ubicadoEn lugar:región-andina ;
+     rdfs:label ?lugar .
+}
+ORDER BY ?modismo ?lugar

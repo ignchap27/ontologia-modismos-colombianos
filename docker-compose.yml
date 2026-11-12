@@ -1,0 +1,48 @@
+# Fuseki con tres servicios sobre los mismos datos y la página web
+#
+#   docker compose up -d      prende todo, Fuseki tarda un poco en cargar los archivos
+#   docker compose down       lo apaga
+#
+# Fuseki queda en http://localhost:3030 con usuario admin y clave admin
+# La página queda en http://localhost:8000
+
+services:
+  fuseki:
+    image: stain/jena-fuseki:4.8.0
+    container_name: modcol-fuseki
+    ports:
+      - "3030:3030"
+    environment:
+      ADMIN_PASSWORD: admin
+      JVM_ARGS: -Xmx4g
+    volumes:
+      - ./fuseki:/fuseki/configuration
+      - ./ontologia:/staging/ontologia:ro
+      - ./datos:/staging/datos:ro
+
+  web:
+    image: nginx:1.27-alpine
+    container_name: modcol-web
+    ports:
+      - "8000:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+      - ./consultas:/usr/share/nginx/consultas:ro
+    configs:
+      - source: nginx
+        target: /etc/nginx/conf.d/default.conf
+
+# la página está en web/ y la pestaña Consultas lee los .rq de consultas/
+configs:
+  nginx:
+    content: |
+      server {
+        listen 80;
+        charset utf-8;
+        root /usr/share/nginx/html;
+        index index.html;
+        location /consultas/ {
+          root /usr/share/nginx;
+          default_type text/plain;
+        }
+      }

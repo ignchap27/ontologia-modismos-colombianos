@@ -1,0 +1,117 @@
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix mc: <http://example.org/modcol/ontologia#> .
+@prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/modcol/ontologia> a owl:Ontology ;
+    rdfs:label "Ontología de modismos colombianos"@es ;
+    rdfs:comment "Modismos de Colombia con sus significados, ejemplos, regiones y diccionarios de origen."@es .
+
+mc:Ciudad a owl:Class ;
+    rdfs:label "Ciudad"@es ;
+    rdfs:comment "Ciudad de Colombia."@es ;
+    rdfs:subClassOf mc:Lugar,
+        schema:City .
+
+mc:Departamento a owl:Class ;
+    rdfs:label "Departamento"@es ;
+    rdfs:comment "Departamento de Colombia."@es ;
+    rdfs:subClassOf mc:Lugar,
+        schema:AdministrativeArea .
+
+mc:Locucion a owl:Class ;
+    rdfs:label "Locución"@es ;
+    rdfs:comment "Modismo de varias palabras, por ejemplo a juro."@es ;
+    rdfs:subClassOf mc:Modismo ;
+    owl:disjointWith mc:ModismoUnipalabra .
+
+mc:MacroRegion a owl:Class ;
+    rdfs:label "Macro región"@es ;
+    rdfs:comment "Zona más grande que un departamento y más chica que una región natural, como los Llanos Orientales."@es ;
+    rdfs:subClassOf mc:Lugar .
+
+mc:RegionNatural a owl:Class ;
+    rdfs:label "Región natural"@es ;
+    rdfs:comment "Una de las seis regiones naturales de Colombia."@es ;
+    rdfs:subClassOf mc:Lugar .
+
+mc:esAcepcionDe a owl:ObjectProperty ;
+    rdfs:label "es acepción de"@es ;
+    rdfs:comment "Inversa de tiene acepción."@es ;
+    rdfs:domain mc:Acepcion ;
+    rdfs:range mc:Modismo ;
+    owl:inverseOf mc:tieneAcepcion .
+
+mc:fuente a owl:ObjectProperty ;
+    rdfs:label "fuente"@es ;
+    rdfs:comment "Diccionario de donde sale la acepción."@es ;
+    rdfs:domain mc:Acepcion ;
+    rdfs:range mc:Diccionario ;
+    rdfs:subPropertyOf dct:source .
+
+mc:textoEjemplo a owl:DatatypeProperty ;
+    rdfs:label "texto del ejemplo"@es ;
+    rdfs:comment "La frase de ejemplo."@es ;
+    rdfs:domain mc:EjemploDeUso ;
+    rdfs:range xsd:string .
+
+mc:tieneEjemplo a owl:ObjectProperty ;
+    rdfs:label "tiene ejemplo"@es ;
+    rdfs:comment "Ejemplo de uso de la acepción."@es ;
+    rdfs:domain mc:Acepcion ;
+    rdfs:range mc:EjemploDeUso .
+
+mc:Diccionario a owl:Class ;
+    rdfs:label "Diccionario"@es ;
+    rdfs:comment "Obra de donde sale la acepción."@es .
+
+mc:ModismoUnipalabra a owl:Class ;
+    rdfs:label "Modismo de una palabra"@es ;
+    rdfs:comment "Modismo de una sola palabra, por ejemplo achucutarse."@es ;
+    rdfs:subClassOf mc:Modismo .
+
+mc:tieneAcepcion a owl:ObjectProperty ;
+    rdfs:label "tiene acepción"@es ;
+    rdfs:comment "Une el modismo con uno de sus significados."@es ;
+    rdfs:domain mc:Modismo ;
+    rdfs:range mc:Acepcion ;
+    rdfs:subPropertyOf ontolex:sense .
+
+mc:ubicadoEn a owl:ObjectProperty,
+        owl:TransitiveProperty ;
+    rdfs:label "ubicado en"@es ;
+    rdfs:comment "Un lugar queda dentro de otro más grande."@es ;
+    rdfs:domain mc:Lugar ;
+    rdfs:range mc:Lugar ;
+    rdfs:subPropertyOf schema:containedInPlace .
+
+mc:usadoEn a owl:ObjectProperty ;
+    rdfs:label "usado en"@es ;
+    rdfs:comment "Lugar donde se usa el modismo."@es ;
+    rdfs:domain mc:Modismo ;
+    rdfs:range mc:Lugar ;
+    owl:propertyChainAxiom ( mc:usadoEn mc:ubicadoEn ) .
+
+mc:EjemploDeUso a owl:Class ;
+    rdfs:label "Ejemplo de uso"@es ;
+    rdfs:comment "Frase donde se usa el modismo con una acepción."@es .
+
+mc:Acepcion a owl:Class ;
+    rdfs:label "Acepción"@es ;
+    rdfs:comment "Uno de los significados de un modismo."@es ;
+    rdfs:subClassOf ontolex:LexicalSense .
+
+mc:Modismo a owl:Class ;
+    rdfs:label "Modismo"@es ;
+    rdfs:comment "Palabra o expresión propia del habla colombiana."@es ;
+    rdfs:subClassOf ontolex:LexicalEntry .
+
+mc:Lugar a owl:Class ;
+    rdfs:label "Lugar"@es ;
+    rdfs:comment "Lugar de Colombia donde se usa un modismo."@es ;
+    rdfs:subClassOf schema:Place .
+

@@ -1,0 +1,20 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix mc:   <http://example.org/modcol/ontologia#> .
+@prefix r:    <http://example.org/modcol/recurso/> .
+
+# Datos con errores a propósito para ver que SHACL los encuentra.
+
+# 1. modismo sin ninguna acepción
+r:modismo\/berraco a mc:ModismoUnipalabra ;
+    rdfs:label "berraco"@es .
+
+# 2. locución que en verdad es una sola palabra
+r:modismo\/chévere a mc:Locucion ;
+    rdfs:label "chévere"@es ;
+    mc:tieneAcepcion r:modismo\/chévere\/acepcion\/1 .
+
+# 3. acepción con dos definiciones y una fuente que no es DICOL ni BDC
+r:modismo\/chévere\/acepcion\/1 a mc:Acepcion ;
+    skos:definition "Bueno, agradable."@es , "Excelente."@es ;
+    mc:fuente r:diccionario\/wikipedia .

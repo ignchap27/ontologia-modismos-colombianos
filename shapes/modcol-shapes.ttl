@@ -1,0 +1,77 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix mc:   <http://example.org/modcol/ontologia#> .
+@prefix r:    <http://example.org/modcol/recurso/> .
+@prefix s:    <http://example.org/modcol/shapes#> .
+
+# Reglas de calidad de los datos. OWL infiere, SHACL revisa.
+
+# todo modismo tiene nombre y al menos una acepción
+s:ModismoShape a sh:NodeShape ;
+    sh:targetClass mc:Modismo ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+        sh:message "El modismo no tiene nombre en español." ] ;
+    sh:property [
+        sh:path mc:tieneAcepcion ;
+        sh:minCount 1 ;
+        sh:class mc:Acepcion ;
+        sh:message "El modismo no tiene ninguna acepción." ] ;
+    sh:property [
+        sh:path mc:usadoEn ;
+        sh:class mc:Lugar ;
+        sh:message "El lugar de uso no es un lugar conocido." ] .
+
+# una locución tiene que tener al menos un espacio
+s:LocucionShape a sh:NodeShape ;
+    sh:targetClass mc:Locucion ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:pattern " " ;
+        sh:message "Una locución debe tener más de una palabra." ] .
+
+s:UnipalabraShape a sh:NodeShape ;
+    sh:targetClass mc:ModismoUnipalabra ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:pattern "^\\S+$" ;
+        sh:message "Un modismo de una palabra no puede tener espacios." ] .
+
+# cada acepción tiene una definición y viene de uno de los dos diccionarios
+s:AcepcionShape a sh:NodeShape ;
+    sh:targetClass mc:Acepcion ;
+    sh:property [
+        sh:path skos:definition ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 2 ;
+        sh:message "La acepción debe tener una sola definición." ] ;
+    sh:property [
+        sh:path mc:fuente ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( r:diccionario\/dicol r:diccionario\/bdc ) ;
+        sh:message "La fuente debe ser DICOL o BDC." ] ;
+    sh:property [
+        sh:path mc:tieneEjemplo ;
+        sh:maxCount 1 ;
+        sh:node s:EjemploShape ] .
+
+s:EjemploShape a sh:NodeShape ;
+    sh:property [
+        sh:path mc:textoEjemplo ;
+        sh:minCount 1 ;
+        sh:message "El ejemplo no tiene texto." ] .
+
+# los departamentos siempre están dentro de algo
+s:DepartamentoShape a sh:NodeShape ;
+    sh:targetClass mc:Departamento ;
+    sh:property [
+        sh:path mc:ubicadoEn ;
+        sh:minCount 1 ;
+        sh:or ( [ sh:class mc:MacroRegion ] [ sh:class mc:RegionNatural ] ) ;
+        sh:message "El departamento debe estar en una macro región o una región natural." ] .
