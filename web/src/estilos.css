@@ -1,0 +1,118 @@
+:root {
+  --fondo: #fbfaf7;
+  --texto: #1f1d1a;
+  --suave: #6b665e;
+  --borde: #e3dfd7;
+  --tarjeta: #ffffff;
+  --acento: #b4532a;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #181715;
+    --texto: #ece8e1;
+    --suave: #a39d93;
+    --borde: #34312c;
+    --tarjeta: #211f1c;
+    --acento: #e08a5e;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 16px/1.5 system-ui, sans-serif;
+}
+main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 28px; margin: 0 0 4px; }
+h2 { font-size: 20px; margin: 40px 0 12px; }
+p.suave, .suave { color: var(--suave); }
+.columnas { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 760px) { .columnas { grid-template-columns: 1fr; } }
+.tarjeta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 8px; padding: 16px; }
+svg path.depto { stroke: var(--fondo); stroke-width: 0.6; cursor: pointer; }
+svg path.depto:hover, svg path.depto.activo { stroke: var(--texto); stroke-width: 1.5; }
+input {
+  width: 100%; padding: 10px 12px; font: inherit; color: var(--texto);
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 6px;
+}
+.lista { max-height: 420px; overflow-y: auto; }
+.lista button {
+  display: inline-block; margin: 0 6px 6px 0; padding: 2px 8px; font: inherit; font-size: 14px;
+  color: var(--texto); background: none; border: 1px solid var(--borde); border-radius: 12px; cursor: pointer;
+}
+.lista button:hover { border-color: var(--acento); }
+.acepcion { margin: 12px 0; padding-left: 12px; border-left: 3px solid var(--borde); }
+.ejemplo { font-style: italic; }
+.etiqueta { font-size: 13px; color: var(--suave); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--borde); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+svg path.region { fill: none; stroke-width: 2.5; pointer-events: none; }
+svg text.cifra { font-size: 22px; font-weight: 700; fill: var(--texto); paint-order: stroke; stroke: var(--tarjeta); stroke-width: 4px; pointer-events: none; text-anchor: middle; }
+.vistas { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.vistas button, .barra {
+  font: inherit; font-size: 14px; color: var(--texto); background: none;
+  border: 1px solid var(--borde); border-radius: 6px; padding: 4px 10px; cursor: pointer;
+}
+.vistas button.activo { border-color: var(--texto); font-weight: 600; }
+.barra { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 8px 10px; }
+.barra:hover { border-color: var(--suave); }
+.barra .fondo { height: 10px; border-radius: 3px; margin: 4px 0; }
+h4 { margin: 16px 0 6px; font-size: 15px; }
+.pestanas { display: flex; gap: 4px; margin-top: 16px; border-bottom: 1px solid var(--borde); }
+.pestanas a {
+  padding: 8px 16px; color: var(--suave); text-decoration: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.pestanas a.active { color: var(--texto); border-bottom-color: var(--acento); font-weight: 600; }
+.controles { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+.controles button {
+  font: inherit; font-size: 14px; color: var(--texto); background: none;
+  border: 1px solid var(--borde); border-radius: 6px; padding: 4px 10px; cursor: pointer;
+}
+.controles button.activo { border-color: var(--texto); font-weight: 600; }
+.controles label { font-size: 14px; display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.controles input[type="checkbox"], .filtros input { width: auto; }
+.lienzo { position: relative; }
+#grafo { display: block; width: 100%; height: 620px; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 8px; cursor: grab; touch-action: none; }
+@media (max-width: 760px) { #grafo { height: 460px; } }
+#grafo .enlace { stroke: var(--suave); stroke-opacity: 0.6; fill: none; }
+#grafo .enlace.inferido { stroke-dasharray: 5 4; }
+#grafo .predicado { font-size: 9px; fill: var(--suave); text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: var(--tarjeta); stroke-width: 3px; }
+#grafo .nodo { cursor: pointer; }
+#grafo .nodo.texto { cursor: default; }
+#grafo .nodo rect { stroke: var(--tarjeta); stroke-width: 1.5; }
+#grafo .nodo.centro rect { stroke: var(--texto); stroke-width: 2.5; }
+#grafo .nodo text { font-size: 11px; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+#grafo .nodo.texto text { fill: var(--texto); }
+.zoom { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 6px; }
+.zoom button {
+  width: 36px; height: 36px; font: inherit; font-size: 18px; color: var(--texto); background: var(--tarjeta);
+  border: 1px solid var(--borde); border-radius: 50%; cursor: pointer;
+}
+.zoom button:hover, .controles button:hover { border-color: var(--suave); }
+.filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 760px) { .filtros { grid-template-columns: 1fr; } }
+.filtros summary { cursor: pointer; font-weight: 600; }
+.filtros label { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 4px 0; cursor: pointer; }
+.muestra { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+.consultas { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start; }
+@media (max-width: 760px) { .consultas { grid-template-columns: 1fr; } }
+.menu-consultas a {
+  display: block; text-decoration: none; width: 100%; text-align: left; font: inherit; font-size: 14px; color: var(--texto);
+  background: none; border: 1px solid transparent; border-radius: 6px; padding: 6px 10px; cursor: pointer;
+}
+.menu-consultas a:hover { border-color: var(--borde); }
+.menu-consultas a.active { border-color: var(--acento); font-weight: 600; }
+.consultas textarea {
+  width: 100%; min-height: 260px; padding: 10px 12px; resize: vertical; color: var(--texto);
+  font: 13px/1.45 ui-monospace, Menlo, monospace; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 6px;
+}
+.consultas select { font: inherit; font-size: 14px; color: var(--texto); background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 6px; padding: 4px 8px; }
+.resultado { overflow: auto; max-height: 560px; padding: 0; }
+.resultado table { font-size: 14px; }
+.resultado th, .resultado td { padding: 8px 16px; }
+.resultado th { position: sticky; top: 0; background: var(--tarjeta); border-bottom: none; box-shadow: inset 0 -1px var(--borde); }
+.resultado pre, .resultado > p { margin: 0; padding: 16px; }
+.resultado pre { font: 13px/1.45 ui-monospace, Menlo, monospace; white-space: pre-wrap; }

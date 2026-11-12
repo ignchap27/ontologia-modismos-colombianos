@@ -134,7 +134,7 @@ Para la CQ3 Fuseki no puede hacer `SERVICE` contra Wikidata porque le responden 
 
 ## Página web
 
-`scripts/09_exportar_web.py` saca con SPARQL lo que necesita la página y lo guarda en `web/datos.json`. La página tiene un mapa de Colombia con las regiones naturales, barras con los modismos de cada región, la lista de modismos de cada departamento, y un buscador con la ficha de cada modismo (acepciones, ejemplos y lugares).
+`scripts/09_exportar_web.py` saca con SPARQL lo que necesita la página y lo guarda en `web/public/datos.json`. La página está hecha con React y Vite en la carpeta `web/`. Tiene un mapa de Colombia con las regiones naturales, barras con los modismos de cada región, la lista de modismos de cada departamento, y un buscador con la ficha de cada modismo (acepciones, ejemplos y lugares).
 
 ### Por qué hay dos cifras en el mapa
 
@@ -165,14 +165,24 @@ La pestaña Grafo muestra el nodo de un modismo con sus relaciones. Esta parte n
 
 La pestaña Consultas tiene las preguntas de competencia de la carpeta `consultas/`. Al elegir una se corre en Fuseki y el resultado sale en una tabla. Se puede escoger el servicio (`modcol-base`, `modcol-rdfs` o `modcol-owl`) para ver qué cambia con cada razonador, y la consulta se puede editar y volver a correr con Ctrl y Enter.
 
-Con `docker compose up -d` la página queda en http://localhost:8000.
+Cada pestaña queda en la dirección del navegador, por ejemplo `/grafo/achucutarse?nivel=2&owl=1` o `/consultas/cq2`. Así se puede recargar o mandar el enlace sin perder lo que se estaba viendo, y los botones de atrás y adelante funcionan.
+
+Con `docker compose up -d --build` se compila la página dentro de Docker y queda en http://localhost:8000, no hace falta tener Node. Para cambiar la página con recarga en vivo se usa Node 22.
+
+```
+cd web
+npm install
+npm run dev
+```
+
+Eso la abre en http://localhost:5173 y sigue usando Fuseki en el puerto 3030.
 
 ## Cómo correr todo
 
 Los datos ya están generados, así que basta con un comando.
 
 ```
-docker compose up -d
+docker compose up -d --build
 ```
 
 Eso prende Fuseki con la ontología, las instancias y lo inferido ya cargados en http://localhost:3030 (usuario admin y clave admin) y la página en http://localhost:8000. Fuseki tarda uno o dos minutos en cargar los archivos.

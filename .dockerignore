@@ -1,0 +1,6 @@
+# a la imagen de la página solo entran web y consultas
+*
+!web
+!consultas
+web/node_modules
+web/dist

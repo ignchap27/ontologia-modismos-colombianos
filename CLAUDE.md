@@ -17,7 +17,7 @@ El alcance es solo modismos, acepciones, ejemplos, diccionarios y lugares, más 
 Todo se corre desde la carpeta `parcial_2` con `.venv/bin/python` (Python 3.14, rdflib 7.6, owlrl 7.6, pyshacl 0.40, unidecode, requests).
 
 ```
-docker compose up -d                  # Fuseki en :3030 (admin/admin) y página en :8000, los datos ya están generados
+docker compose up -d --build          # Fuseki en :3030 (admin/admin) y página en :8000, los datos ya están generados
 
 # regenerar todo después de cambiar ontología o datos
 .venv/bin/python scripts/01_ontologia.py
@@ -30,7 +30,7 @@ docker compose up -d --force-recreate   # Fuseki tarda en cargar los archivos
 .venv/bin/python scripts/09_exportar_web.py
 ```
 
-Si solo cambias la página basta con recargar http://localhost:8000, nginx sirve `web/` directo.
+La página es React con Vite en `web/`. Para cambiarla `cd web && npm run dev` (http://localhost:5173, recarga en vivo). Para que :8000 la tome hay que `docker compose up -d --build web`, la imagen compila con node y sirve `dist` con nginx.
 
 ## Estructura
 
@@ -44,8 +44,9 @@ Si solo cambias la página basta con recargar http://localhost:8000, nginx sirve
 | `scripts/05_validar.py` | pyshacl con `shapes/modcol-shapes.ttl`. Los datos reales pasan y `datos/error_instancias.ttl` falla con 4 violaciones |
 | `fuseki/config.ttl` | Servicios en memoria `modcol-base`, `modcol-rdfs` y `modcol-owl` que cargan los archivos al arrancar |
 | `scripts/06_consultas.py` | Corre `consultas/cq1.rq` a `cq3.rq` en los tres servicios, guarda en `resultados/` y completa la CQ3 con la población de Wikidata |
-| `scripts/09_exportar_web.py` | Saca con SPARQL lo que necesita la página y lo guarda en `web/datos.json`. Copia el TopoJSON a `web/colombia.json` |
-| `web/index.html` | Página estática con mapa D3, barras por región, buscador de modismos, grafo en vivo y consultas |
+| `scripts/09_exportar_web.py` | Saca con SPARQL lo que necesita la página y lo guarda en `web/public/datos.json`. Copia el TopoJSON a `web/public/colombia.json` |
+| `web/src/` | React. `App.jsx` pestañas y rutas, `Datos.jsx` con `Mapa.jsx` y `Ficha.jsx`, `Grafo.jsx`, `Consultas.jsx`, `fuseki.js` |
+| `web/Dockerfile` | Compila con node y sirve con nginx (`web/nginx.conf`). Se construye desde la raíz para que entren los `.rq` |
 
 No existen `07` ni `08` y no hace falta renumerar.
 
@@ -69,7 +70,9 @@ No existen `07` ni `08` y no hace falta renumerar.
 6. **Nombres del mapa.** En el TopoJSON algunos nombres llevan Ñ, como `NARIÑO`. `09_exportar_web.py` compara sin tildes y falla si alguno no cruza.
 7. **Página.** San Andrés queda fuera del `fitSize` porque achica el mapa. Los bordes de región se arman con `topojson.merge`. La vista por departamento usa un solo azul con opacidad porque con grises en tema oscuro parecían vacíos. Colores de región como en la diapositiva, Andina rojo, Caribe naranja, Pacífica morado, Orinoquía verde y Amazonía gris.
 8. **Pestaña Grafo.** D3 force, consulta Fuseki en vivo por el puerto 3030 (ya tiene CORS). Acepciones y ejemplos no tienen `rdfs:label` y su nombre sale de la IRI. Con inferencia OWL consulta `modcol-owl` y compara contra `modcol-base` para dibujar punteado lo inferido. Por nodo trae hasta 25 tripletas que llegan en nivel 1 y 6 en nivel 2.
-9. **Pestaña Consultas.** nginx sirve `consultas/` en `/consultas/` con la configuración escrita en `docker-compose.yml` (`configs`). No se puede montar dentro de `web/` porque esa carpeta va `:ro`. La lista está fija en `CONSULTAS` en `web/index.html`, si se agrega un `.rq` hay que sumarlo ahí.
+9. **Pestaña Consultas.** Los `.rq` entran al bundle con `import.meta.glob` en `Consultas.jsx`, así que un `.rq` nuevo sale solo al recompilar. Por eso `vite.config.js` tiene `fs.allow` hacia `..`.
+10. **Rutas.** react-router con `BrowserRouter`. Pestaña, modismo, vista del mapa, nivel y OWL van en la URL. `nginx.conf` manda todo a `index.html` con `try_files`. Cada pestaña recuerda su última URL en `App.jsx`.
+11. **Grafo en React.** Nodos y enlaces viven en un `useRef` porque D3 los muta, y `version` avisa cuándo redibujar. Las respuestas viejas de Fuseki se descartan con una bandera en el efecto.
 
 ## Resultados clave, para no recalcular
 
@@ -85,4 +88,5 @@ No existen `07` ni `08` y no hace falta renumerar.
 
 ```
 grep -nE '^\s*#.*([;—–]|[a-z]: )' scripts/*.py
+grep -nE '^\s*//.*([;—–]|[a-z]: )' web/src/*
 ```

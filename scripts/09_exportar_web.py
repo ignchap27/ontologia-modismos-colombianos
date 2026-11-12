@@ -1,4 +1,4 @@
-"""Saca de Fuseki (servicio modcol-owl) lo que necesita la página web y lo guarda en web/datos.json."""
+"""Saca de Fuseki (servicio modcol-owl) lo que necesita la página web y lo guarda en web/public/datos.json."""
 import csv
 import json
 import shutil
@@ -100,7 +100,7 @@ salida = {"modismos": sorted(modismos.values(), key=lambda m: m["nombre"].lower(
           "departamentos": departamentos,
           "regiones": sorted(regiones, key=lambda r: -r["total"]),
           "macros": macros}
-with open("web/datos.json", "w", encoding="utf-8") as f:
+with open("web/public/datos.json", "w", encoding="utf-8") as f:
     json.dump(salida, f, ensure_ascii=False)
-shutil.copy(f"{cfg.EMNLP}/04_metrics_es/DataSet/Municipios-colombia.json", "web/colombia.json")
-print(len(modismos), "modismos,", len(departamentos), "departamentos en web/datos.json")
+shutil.copy(f"{cfg.EMNLP}/04_metrics_es/DataSet/Municipios-colombia.json", "web/public/colombia.json")
+print(len(modismos), "modismos,", len(departamentos), "departamentos en web/public/datos.json")
