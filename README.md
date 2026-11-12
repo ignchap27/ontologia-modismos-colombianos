@@ -26,7 +26,7 @@ La solución es volver la tabla un grafo de conocimiento. Una ontología dice qu
 
 ## Arquitectura de la solución
 
-Todo sale de correr los scripts en orden. Cada script lee lo que dejó el anterior y escribe un archivo nuevo. Al final Fuseki carga esos archivos y la página los muestra.
+La ontología la escribí a mano en Turtle. Los datos salen de correr los scripts en orden, cada uno lee lo que dejó el anterior y escribe un archivo nuevo. Al final Fuseki carga esos archivos y la página los muestra.
 
 ```mermaid
 flowchart TD
@@ -34,9 +34,7 @@ flowchart TD
     mapa[("fuentes/Municipios-colombia.json<br/>mapa de Colombia")]
     wd[("Wikidata<br/>departamentos y población")]
 
-    s1["01_ontologia.py<br/>aquí escribí las clases, las propiedades<br/>y los 4 axiomas"]
-    o1[("ontologia/modcol.ttl<br/>93 triples, solo vocabulario")]
-    s1 --> o1
+    o1["ontologia/modcol.ttl escrita a mano<br/>clases, propiedades y los 4 axiomas<br/>93 triples, solo vocabulario"]
 
     s2["02_instancias.py<br/>junta las filas de cada modismo,<br/>separa las regiones y arma la geografía"]
     o2[("datos/instancias.ttl con 59121 triples<br/>datos/muestra.jsonld con 2 modismos")]
@@ -81,20 +79,20 @@ flowchart TD
     classDef generado fill:#dbeafe,stroke:#1d4ed8,color:#000
     classDef externo fill:#e5e7eb,stroke:#4b5563,color:#000
     classDef servicio fill:#dcfce7,stroke:#15803d,color:#000
-    class s1,s2,s3,s4,s5,s6,s9,shapes,errores,conf,cq,src yo
-    class o1,o2,o3,o4,r5,o6,o9 generado
+    class o1,s2,s3,s4,s5,s6,s9,shapes,errores,conf,cq,src yo
+    class o2,o3,o4,r5,o6,o9 generado
     class fuentes,mapa,wd externo
     class fuseki,web servicio
 ```
 
-1. Amarillo es lo que escribí yo. Son los scripts, las reglas SHACL, los datos con errores, las consultas, la configuración de Fuseki y el código de la página. La ontología también la escribí yo, dentro de `01_ontologia.py`.
+1. Amarillo es lo que escribí yo. Son los scripts, las reglas SHACL, los datos con errores, las consultas, la configuración de Fuseki y el código de la página. La ontología también la escribí yo a mano en `ontologia/modcol.ttl`.
 2. Azul es lo que generan los scripts de Python. Ninguno de esos archivos se edita a mano, si algo cambia se vuelve a correr el script.
 3. Gris es lo que viene de afuera. Son los dos archivos copiados del artículo y Wikidata.
 4. Verde son los servicios que quedan corriendo con Docker.
 
 Esto es lo que sale de cada paso.
 
-1. `01_ontologia.py` escribe el vocabulario en `ontologia/modcol.ttl`. Son 93 triples con las clases, las propiedades y los 4 axiomas, sin ningún dato.
+1. `ontologia/modcol.ttl` tiene el vocabulario escrito a mano. Son 93 triples con las clases, las propiedades y los 4 axiomas, sin ningún dato.
 2. `02_instancias.py` lee la tabla, junta las filas de cada modismo, separa `Huila, Tolima` en dos lugares y arma la geografía de regiones. Escribe `datos/instancias.ttl` con 5284 modismos y 8129 acepciones.
 3. `03_wikidata.py` busca en Wikidata los 32 departamentos y Bogotá. Escribe `datos/enlaces_wikidata.ttl` con 33 `owl:sameAs`.
 4. `04_razonar.py` corre owlrl y guarda en `datos/inferido.ttl` solo lo que dedujo, como `usadoEn` hasta la región.
@@ -111,7 +109,7 @@ Seguí estos pasos en orden. Cada uno dice qué hice y dónde quedó.
 1. **Alcance.** Decidí cubrir solo modismos, acepciones, ejemplos, diccionarios y lugares. Escribí las 3 preguntas de competencia antes de poblar, para saber qué tenía que poder responder la ontología.
 2. **Términos.** Revisé la tabla del artículo y saqué los términos que importan, que son modismo, significado, ejemplo, región y fuente.
 3. **Reuso.** Busqué vocabularios que ya existían para no inventar nada. Usé OntoLex para modismos y acepciones, SKOS para las definiciones, Dublin Core para la fuente y schema.org para los lugares.
-4. **Clases y propiedades.** Armé la jerarquía de clases y las propiedades con dominio y rango en `01_ontologia.py`.
+4. **Clases y propiedades.** Armé la jerarquía de clases y las propiedades con dominio y rango a mano en `ontologia/modcol.ttl`.
 5. **Axiomas.** Agregué 4 axiomas OWL, cada uno porque es cierto en el dominio y no para llegar a un número.
 6. **Instancias.** Poblé el grafo desde la tabla con `02_instancias.py`. Las IRI salen del texto, así que al volver a correr salen iguales.
 7. **Enlace.** Uní departamentos y Bogotá con Wikidata en `03_wikidata.py`.
@@ -238,7 +236,7 @@ Cada axioma está porque es cierto en el dominio, no para llegar a un número.
 
 ## Datos
 
-Todo se genera por código. Las IRI salen del texto de cada cosa, nunca de contadores, así que al volver a correr salen iguales. Por ejemplo `r:modismo/a-juro/acepcion/2` o `r:lugar/costa-atlántica`. Las IRI dejan tildes y ñ porque si no `caña` y `cana` quedaban como el mismo modismo. El vocabulario (`ontologia/modcol.ttl`, espacio `http://example.org/modcol/ontologia#`) y los datos (`datos/instancias.ttl`, espacio `http://example.org/modcol/recurso/`) van en archivos y espacios de nombres separados.
+La ontología está escrita a mano y los datos se generan por código. Las IRI salen del texto de cada cosa, nunca de contadores, así que al volver a correr salen iguales. Por ejemplo `r:modismo/a-juro/acepcion/2` o `r:lugar/costa-atlántica`. Las IRI dejan tildes y ñ porque si no `caña` y `cana` quedaban como el mismo modismo. El vocabulario (`ontologia/modcol.ttl`, espacio `http://example.org/modcol/ontologia#`) y los datos (`datos/instancias.ttl`, espacio `http://example.org/modcol/recurso/`) van en archivos y espacios de nombres separados.
 
 | Qué | Cuántos |
 |---|---|
@@ -382,7 +380,6 @@ Para generar todo otra vez desde el repo del artículo se corren los scripts en 
 ```
 python -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python scripts/01_ontologia.py
 .venv/bin/python scripts/02_instancias.py
 .venv/bin/python scripts/03_wikidata.py
 .venv/bin/python scripts/04_razonar.py

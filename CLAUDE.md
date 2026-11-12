@@ -20,7 +20,6 @@ Todo se corre desde la carpeta `parcial_2` con `.venv/bin/python` (Python 3.14, 
 docker compose up -d --build          # Fuseki en :3030 (admin/admin) y página en :8000, los datos ya están generados
 
 # regenerar todo después de cambiar ontología o datos
-.venv/bin/python scripts/01_ontologia.py
 .venv/bin/python scripts/02_instancias.py
 .venv/bin/python scripts/03_wikidata.py
 .venv/bin/python scripts/04_razonar.py
@@ -37,7 +36,7 @@ La página es React con Vite en `web/`. Para cambiarla `cd web && npm run dev` (
 | Ruta | Qué hace |
 |---|---|
 | `configuracion.py` | Carpeta `fuentes`, espacios de nombres, URL de Fuseki y nombres de los servicios |
-| `scripts/01_ontologia.py` | Genera `ontologia/modcol.ttl` (93 triples, solo vocabulario) |
+| `ontologia/modcol.ttl` | Ontología escrita a mano (93 triples, solo vocabulario). No la genera ningún script |
 | `scripts/02_instancias.py` | Genera `datos/instancias.ttl` (59121 triples) y `datos/muestra.jsonld` |
 | `scripts/03_wikidata.py` | Reconciliación con Wikidata por señales, igual que el taller 5. Genera `datos/enlaces_wikidata.ttl` (33 `owl:sameAs`) |
 | `scripts/04_razonar.py` | owlrl sobre todo el grafo (unos 15 s), tabla antes y después, prueba de inconsistencia. Genera `datos/inferido.ttl` |
@@ -48,7 +47,7 @@ La página es React con Vite en `web/`. Para cambiarla `cd web && npm run dev` (
 | `web/src/` | React. `App.jsx` pestañas y rutas, `Datos.jsx` con `Mapa.jsx` y `Ficha.jsx`, `Grafo.jsx`, `Consultas.jsx`, `fuseki.js` |
 | `web/Dockerfile` | Compila con node y sirve con nginx (`web/nginx.conf`). Se construye desde la raíz para que entren los `.rq` |
 
-No existen `07` ni `08` y no hace falta renumerar.
+No existen `01`, `07` ni `08` y no hace falta renumerar.
 
 ## Ontología
 
