@@ -2,11 +2,133 @@
 
 Proyecto que reemplaza el parcial 2 de Web Semántica. La idea es tomar los modismos del artículo de modismos colombianos, con sus significados y las regiones donde se usan, y volverlos un grafo de conocimiento con RDF, RDFS, OWL y SHACL. Después se consulta con SPARQL en Fuseki, se enlaza con Wikidata y se ve en una página web.
 
-Los datos salen del repo `Modismos_EMNLP_2026`. Ese repo no se modifica, solo se lee. La ruta está en `configuracion.py`.
+Los datos salen del repo [Modismos_EMNLP_2026](https://github.com/SBobi/Modismos_EMNLP_2026). Copié los dos archivos que uso a la carpeta `fuentes/` para que este repo funcione solo. `DataSet_Curados.json` tiene los modismos con sus acepciones y lugares, y `Municipios-colombia.json` es el mapa de Colombia. Ese repo tiene licencia MIT, que va en `fuentes/LICENSE`.
+
+## El problema
+
+En Colombia se usan miles de modismos y muchos cambian de una región a otra. Los diccionarios DICOL y BDC los recogen, y el artículo los juntó en `DataSet_Curados.json` para probar si los modelos de lenguaje los entienden.
+
+Ese archivo es una tabla plana de 8129 filas. Cada fila es un significado con cinco campos, que son `modismo`, `significado`, `ejemplo`, `región` y `Fuente`. Así viene `guámbito`.
+
+```json
+{"modismo": "guámbito", "significado": "Niño de corta edad.", "ejemplo": "¡Mijita, traiga el guámbito para bañarlo!", "región": null, "Fuente": "DICOL"}
+{"modismo": "guámbito", "significado": "niño", "ejemplo": null, "región": "Huila, Tolima", "Fuente": "BDC"}
+```
+
+Con la tabla así hay cuatro problemas.
+
+1. El mismo modismo se repite en varias filas y nada dice que las dos de arriba son un solo modismo con dos significados.
+2. La región es texto libre. En 7572 filas viene vacía, a veces trae varios departamentos separados por coma (`Huila, Tolima`) y a veces una zona como `Costa Atlántica`.
+3. Nada dice que Huila queda en la Región Andina. Para saber qué modismos se usan en la Región Andina habría que escribir la geografía a mano en cada consulta.
+4. No se puede cruzar con otros datos, como la población de cada departamento.
+
+La solución es volver la tabla un grafo de conocimiento. Una ontología dice qué es un modismo, una acepción y un lugar y cómo se relacionan. Un razonador completa lo que se deduce, por ejemplo que un modismo de Huila se usa en la Región Andina. SHACL revisa que los datos estén bien armados y Wikidata trae lo que el diccionario no tiene.
+
+## Arquitectura de la solución
+
+Todo sale de correr los scripts en orden. Cada script lee lo que dejó el anterior y escribe un archivo nuevo. Al final Fuseki carga esos archivos y la página los muestra.
+
+```mermaid
+flowchart TD
+    fuentes[("fuentes/DataSet_Curados.json<br/>8129 filas copiadas del artículo")]
+    mapa[("fuentes/Municipios-colombia.json<br/>mapa de Colombia")]
+    wd[("Wikidata<br/>departamentos y población")]
+
+    s1["01_ontologia.py<br/>aquí escribí las clases, las propiedades<br/>y los 4 axiomas"]
+    o1[("ontologia/modcol.ttl<br/>93 triples, solo vocabulario")]
+    s1 --> o1
+
+    s2["02_instancias.py<br/>junta las filas de cada modismo,<br/>separa las regiones y arma la geografía"]
+    o2[("datos/instancias.ttl con 59121 triples<br/>datos/muestra.jsonld con 2 modismos")]
+    fuentes --> s2 --> o2
+
+    s3["03_wikidata.py<br/>busca cada departamento y Bogotá<br/>y cuenta tres señales"]
+    o3[("datos/enlaces_wikidata.ttl<br/>33 owl:sameAs")]
+    o2 --> s3
+    wd -- "candidatos" --> s3
+    s3 --> o3
+
+    s4["04_razonar.py<br/>owlrl sobre ontología y datos,<br/>más una prueba de inconsistencia"]
+    o4[("datos/inferido.ttl<br/>81157 triples deducidos")]
+    o1 & o2 --> s4 --> o4
+
+    shapes["shapes/modcol-shapes.ttl<br/>reglas SHACL"]
+    errores["datos/error_instancias.ttl<br/>datos con errores a propósito"]
+    s5["05_validar.py<br/>pyshacl"]
+    r5(["datos reales conforman<br/>datos con errores dan 4 violaciones"])
+    o1 & o2 & o4 & shapes & errores --> s5 --> r5
+
+    conf["fuseki/config.ttl<br/>docker-compose.yml"]
+    fuseki{{"Fuseki en el puerto 3030<br/>modcol-base sin razonar<br/>modcol-rdfs con RDFS de Jena<br/>modcol-owl con lo que dedujo owlrl"}}
+    o1 & o2 & o3 & o4 & conf --> fuseki
+
+    cq["consultas/cq1.rq a cq3.rq<br/>las 3 preguntas de competencia"]
+    s6["06_consultas.py<br/>corre las CQ en los tres servicios"]
+    o6[("resultados/cq1.csv a cq3.csv<br/>resultados/cq3_wikidata.csv")]
+    cq & fuseki --> s6 --> o6
+    wd -- "población con VALUES" --> s6
+
+    s9["09_exportar_web.py<br/>saca con SPARQL lo que pide el mapa"]
+    o9[("web/public/datos.json<br/>web/public/colombia.json")]
+    fuseki & mapa & o6 --> s9 --> o9
+
+    src["web/src<br/>React con las pestañas<br/>Datos, Grafo y Consultas"]
+    web{{"Página en el puerto 8000"}}
+    o9 & src & cq --> web
+    web -. "Grafo y Consultas<br/>preguntan en vivo" .-> fuseki
+
+    classDef yo fill:#fef3c7,stroke:#b45309,color:#000
+    classDef generado fill:#dbeafe,stroke:#1d4ed8,color:#000
+    classDef externo fill:#e5e7eb,stroke:#4b5563,color:#000
+    classDef servicio fill:#dcfce7,stroke:#15803d,color:#000
+    class s1,s2,s3,s4,s5,s6,s9,shapes,errores,conf,cq,src yo
+    class o1,o2,o3,o4,r5,o6,o9 generado
+    class fuentes,mapa,wd externo
+    class fuseki,web servicio
+```
+
+1. Amarillo es lo que escribí yo. Son los scripts, las reglas SHACL, los datos con errores, las consultas, la configuración de Fuseki y el código de la página. La ontología también la escribí yo, dentro de `01_ontologia.py`.
+2. Azul es lo que generan los scripts de Python. Ninguno de esos archivos se edita a mano, si algo cambia se vuelve a correr el script.
+3. Gris es lo que viene de afuera. Son los dos archivos copiados del artículo y Wikidata.
+4. Verde son los servicios que quedan corriendo con Docker.
+
+Esto es lo que sale de cada paso.
+
+1. `01_ontologia.py` escribe el vocabulario en `ontologia/modcol.ttl`. Son 93 triples con las clases, las propiedades y los 4 axiomas, sin ningún dato.
+2. `02_instancias.py` lee la tabla, junta las filas de cada modismo, separa `Huila, Tolima` en dos lugares y arma la geografía de regiones. Escribe `datos/instancias.ttl` con 5284 modismos y 8129 acepciones.
+3. `03_wikidata.py` busca en Wikidata los 32 departamentos y Bogotá. Escribe `datos/enlaces_wikidata.ttl` con 33 `owl:sameAs`.
+4. `04_razonar.py` corre owlrl y guarda en `datos/inferido.ttl` solo lo que dedujo, como `usadoEn` hasta la región.
+5. `05_validar.py` revisa con SHACL. No escribe archivos, imprime que los datos reales pasan y que los datos con errores dan 4 violaciones.
+6. Docker levanta Fuseki con tres servicios sobre los mismos archivos.
+7. `06_consultas.py` corre las 3 preguntas de competencia en los tres servicios, completa la CQ3 con la población de Wikidata y guarda todo en `resultados/`.
+8. `09_exportar_web.py` le pregunta a Fuseki lo que necesita el mapa y lo guarda en `web/public/datos.json`.
+9. La página muestra `datos.json` en la pestaña Datos. Las pestañas Grafo y Consultas le preguntan a Fuseki en vivo.
+
+## Metodología
+
+Seguí estos pasos en orden. Cada uno dice qué hice y dónde quedó.
+
+1. **Alcance.** Decidí cubrir solo modismos, acepciones, ejemplos, diccionarios y lugares. Escribí las 3 preguntas de competencia antes de poblar, para saber qué tenía que poder responder la ontología.
+2. **Términos.** Revisé la tabla del artículo y saqué los términos que importan, que son modismo, significado, ejemplo, región y fuente.
+3. **Reuso.** Busqué vocabularios que ya existían para no inventar nada. Usé OntoLex para modismos y acepciones, SKOS para las definiciones, Dublin Core para la fuente y schema.org para los lugares.
+4. **Clases y propiedades.** Armé la jerarquía de clases y las propiedades con dominio y rango en `01_ontologia.py`.
+5. **Axiomas.** Agregué 4 axiomas OWL, cada uno porque es cierto en el dominio y no para llegar a un número.
+6. **Instancias.** Poblé el grafo desde la tabla con `02_instancias.py`. Las IRI salen del texto, así que al volver a correr salen iguales.
+7. **Enlace.** Uní departamentos y Bogotá con Wikidata en `03_wikidata.py`.
+8. **Razonamiento.** Corrí owlrl en `04_razonar.py` y comparé antes y después. También probé que detecta una inconsistencia.
+9. **Validación.** Revisé los datos con SHACL en `05_validar.py`, con datos reales y con datos que tienen errores puestos a propósito.
+10. **Preguntas de competencia.** Las respondí en Fuseki en los tres servicios con `06_consultas.py`, para ver qué cambia con el razonamiento.
+11. **Página.** Mostré el resultado en una página web con mapa, grafo y consultas.
+
+No fue en línea recta. Varias veces tuve que volver a un paso anterior.
+
+1. Al principio las IRI se hacían sin tildes con `unidecode`, y `caña` y `cana` quedaban como el mismo modismo. Volví al paso 6 y dejé las tildes.
+2. En el paso 7 usé primero una clase de Wikidata equivocada para los departamentos (`Q215819`). La correcta es `Q215655`.
+3. En el paso 10 vi que Jena no maneja la cadena de propiedades. Por eso el servicio OWL de Fuseki carga lo que dedujo owlrl en vez de razonar por su cuenta.
 
 ## Preguntas de competencia
 
-Las escribimos antes de poblar el grafo. Sirven para saber qué tiene que poder responder la ontología y para revisar el modelo.
+Las escribí antes de poblar el grafo. Sirven para saber qué tiene que poder responder la ontología y para revisar el modelo.
 
 | # | Tipo | Pregunta |
 |---|---|---|
@@ -56,11 +178,11 @@ flowchart LR
     class wd wikidata
 ```
 
-1. Azul son las clases nuestras, con prefijo `mc`.
-2. Amarillo son las clases de OntoLex y schema.org que extendemos.
+1. Azul son las clases propias, con prefijo `mc`.
+2. Amarillo son las clases de OntoLex y schema.org que extiendo.
 3. Verde es lo que sale de Wikidata. La población de la CQ3 se trae de ahí.
 4. Las flechas con nombre de propiedad unen una clase con otra. Entre paréntesis va la propiedad externa que extiende.
-5. Las flechas punteadas llegan a un texto. `skos:definition` es de SKOS y `textoEjemplo` es nuestra.
+5. Las flechas punteadas llegan a un texto. `skos:definition` es de SKOS y `textoEjemplo` es propia.
 
 Este es un modismo de verdad, `guámbito`, tal como queda en `datos/instancias.ttl`.
 
@@ -90,11 +212,11 @@ flowchart LR
 
 La flecha gruesa no está en los datos. La pone owlrl con la cadena `usadoEn` y `ubicadoEn`. En los datos `guámbito` también se usa en Tolima, pero no se dibujó para que no se llene.
 
-### Vocabularios que reusamos
+### Vocabularios que reúso
 
-No inventamos lo que ya existe. Nuestras clases y propiedades extienden otras sin redefinirlas.
+No inventé lo que ya existe. Las clases y propiedades propias extienden otras sin redefinirlas.
 
-| Término nuestro | Extiende a | Vocabulario |
+| Término propio | Extiende a | Vocabulario |
 |---|---|---|
 | `mc:Modismo` | `ontolex:LexicalEntry` | OntoLex Lemon |
 | `mc:Acepcion` y `mc:tieneAcepcion` | `ontolex:LexicalSense` y `ontolex:sense` | OntoLex Lemon |
@@ -198,7 +320,7 @@ Lo que dicen las respuestas.
 
 Con tres señales se pone `owl:sameAs`, con dos `skos:closeMatch` y con menos no se enlaza. Los 33 quedaron con `owl:sameAs`.
 
-Para la CQ3 Fuseki no puede hacer `SERVICE` contra Wikidata porque le responden 403 por el User-Agent (lo vimos en la lectura 4). Por eso el cruce se hace desde Python. Primero se cuentan los modismos por departamento en Fuseki y luego se pide la población a Wikidata con `VALUES`. El resultado está en `resultados/cq3_wikidata.csv`.
+Para la CQ3 Fuseki no puede hacer `SERVICE` contra Wikidata porque le responden 403 por el User-Agent (lo vi en la lectura 4). Por eso el cruce se hace desde Python. Primero se cuentan los modismos por departamento en Fuseki y luego se pide la población a Wikidata con `VALUES`. El resultado está en `resultados/cq3_wikidata.csv`.
 
 ## Página web
 
@@ -283,4 +405,4 @@ Los scripts se corren desde esta carpeta.
 | SHACL | `shapes/modcol-shapes.ttl` con pyshacl y datos con errores |
 | Reuso de vocabularios | OntoLex, SKOS, Dublin Core y schema.org |
 | Linked Data | `owl:sameAs` con Wikidata y cruce de datos con `VALUES` |
-| Metodología | CQ escritas antes de poblar, IRI reproducibles, vocabulario y datos separados |
+| Metodología | sección Metodología. CQ escritas antes de poblar, IRI reproducibles, vocabulario y datos separados |

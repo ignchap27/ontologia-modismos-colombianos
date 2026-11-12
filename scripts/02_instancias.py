@@ -16,7 +16,7 @@ import configuracion as cfg
 
 MC = Namespace(cfg.ONT)
 R = Namespace(cfg.RES)
-E = cfg.EMNLP
+E = cfg.FUENTES
 
 g = Graph()
 g.bind("mc", MC)
@@ -97,7 +97,7 @@ for sigla, (nombre, url) in diccionarios.items():
     g.add((d, SDO.url, Literal(url, datatype=XSD.anyURI)))
 
 # modismos, acepciones y ejemplos
-filas = leer_json("01_dataset/Complete_DataSets/DataSet_Curados.json")
+filas = leer_json("DataSet_Curados.json")
 acepciones = defaultdict(int)
 regionales = set()
 for fila in filas:

@@ -50,7 +50,7 @@ for m in modismos.values():
 # departamentos, con la población que se trajo de Wikidata en scripts/06_consultas.py
 # en el mapa los nombres van en mayúsculas y unos tienen tilde o ñ, como NARIÑO,
 # así que se comparan los dos lados sin tildes y se guarda el nombre tal como está en el mapa
-with open(f"{cfg.EMNLP}/04_metrics_es/DataSet/Municipios-colombia.json", encoding="utf-8") as f:
+with open(f"{cfg.FUENTES}/Municipios-colombia.json", encoding="utf-8") as f:
     en_mapa = {unidecode(g["properties"]["dpt"]): g["properties"]["dpt"]
                for g in json.load(f)["objects"]["depts"]["geometries"]}
 nombres_mapa = {"SAN ANDRES Y PROVIDENCIA": "ARCHIPIELAGO DE SAN ANDRES PROVIDENCIA Y SANTA CATALINA",
@@ -102,5 +102,5 @@ salida = {"modismos": sorted(modismos.values(), key=lambda m: m["nombre"].lower(
           "macros": macros}
 with open("web/public/datos.json", "w", encoding="utf-8") as f:
     json.dump(salida, f, ensure_ascii=False)
-shutil.copy(f"{cfg.EMNLP}/04_metrics_es/DataSet/Municipios-colombia.json", "web/public/colombia.json")
+shutil.copy(f"{cfg.FUENTES}/Municipios-colombia.json", "web/public/colombia.json")
 print(len(modismos), "modismos,", len(departamentos), "departamentos en web/public/datos.json")

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Ontología de modismos colombianos. Mini proyecto que reemplaza el parcial 2 de Web Semántica (ISIS4514, Uniandes, 2026 segundo semestre). Los datos salen del artículo EMNLP 2026 en `/Users/ignacio/Developer/Modismos_EMNLP_2026`. El informe para el profesor es `README.md`, léelo después de este archivo.
+Ontología de modismos colombianos. Mini proyecto que reemplaza el parcial 2 de Web Semántica (ISIS4514, Uniandes, 2026 segundo semestre). Los datos salen del artículo EMNLP 2026 (`/Users/ignacio/Developer/Modismos_EMNLP_2026`). Los dos archivos que se usan están copiados en `fuentes/` para que el repo funcione solo. El informe para el profesor es `README.md`, léelo después de este archivo.
 
 El alcance es solo modismos, acepciones, ejemplos, diccionarios y lugares, más el enlace con Wikidata. Hay 4 axiomas OWL y 3 preguntas de competencia. El usuario recortó a propósito la evaluación de modelos (respuestas, juicios humanos, puntajes, ranking) y GraphRAG para que el proyecto parezca hecho por una persona. No vuelvas a agregar evaluación, axiomas, consultas ni funciones nuevas sin preguntar. Ante la duda, menos.
 
@@ -36,7 +36,7 @@ La página es React con Vite en `web/`. Para cambiarla `cd web && npm run dev` (
 
 | Ruta | Qué hace |
 |---|---|
-| `configuracion.py` | Ruta al repo EMNLP, espacios de nombres, URL de Fuseki y nombres de los servicios |
+| `configuracion.py` | Carpeta `fuentes`, espacios de nombres, URL de Fuseki y nombres de los servicios |
 | `scripts/01_ontologia.py` | Genera `ontologia/modcol.ttl` (93 triples, solo vocabulario) |
 | `scripts/02_instancias.py` | Genera `datos/instancias.ttl` (59121 triples) y `datos/muestra.jsonld` |
 | `scripts/03_wikidata.py` | Reconciliación con Wikidata por señales, igual que el taller 5. Genera `datos/enlaces_wikidata.ttl` (33 `owl:sameAs`) |
